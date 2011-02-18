@@ -25,7 +25,7 @@
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <!-- this is Camel -->
-    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" xmlns:atom="http://www.w3.org/2005/Atom">
 
         <!-- configure our route -->
 	<route >
@@ -66,6 +66,15 @@
                 <xpath resultType="java.lang.String">concat(/rss/channel/item/title, " - " , /rss/channel/item/link)</xpath>
             </setBody>
             <to uri="seda:display" />
+        </route>
+
+        <route>
+		<from uri="rss:http://www.ebayopensource.org/hudson/view/Turmeric%20CI/rssLatest?delay=10s"/>
+		<marshal><rss/></marshal>
+		<setBody>
+			<xpath resultType="java.lang.String">concat("Hudson: ", /atom:feed/atom:entry/atom:title, " - ", /atom:feed/atom:entry/atom:link/@href)</xpath>
+		</setBody>
+	        <to uri="seda:display" />
         </route>
 
 	<route>
