@@ -28,19 +28,51 @@
     <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
 
         <!-- configure our route -->
-        <!-- START SNIPPET: e1 -->
+	<route >
+		<from uri="irc:turmeric-bot@irc.freenode.net?channels=#turmeric-dev" />
+		<choice>
+			<when>
+				<simple>${body} contains '~'</simple>
+				<choice>
+					<when>
+						<simple>${body} == '~Hi'</simple>
+						<setBody>
+							<constant>Hi yourself!</constant>
+						</setBody>
+					</when>
+					<when>
+						<simple>${body} == '~about'</simple>
+						<setBody>
+							<constant>Currently I just monitor the JIRA issue system for new updates.'</constant>
+						</setBody>
+					</when>
+					<when>
+						<simple>${body} == '~help'</simple>
+						<setBody>
+							<constant>I understand the following commands. Hi and about. All commands are proceeded by a ~. For Example: ~Hi</constant>
+						</setBody>
+					</when>
+				</choice>
+				<to uri="seda:display" />
+			</when>
+		</choice>
+	</route>
+
+        <!-- Monitor the RSS feed from the issues for new updates -->
         <route>
-            <from uri="rss:https://issues.apache.org/jira/sr/jira.issueviews:searchrequest-rss/temp/SearchRequest.xml?pid=12311211&amp;sorter/field=issuekey&amp;sorter/order=DESC&amp;tempMax=1000&amp;delay=10s"/>
+            <from uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/temp/SearchRequest.xml?jqlQuery=project+%3D+TURMERIC+ORDER+BY+updated+DESC%2C+priority+DESC%2C+created+ASC&amp;tempMax=20&amp;delay=10s"/>
             <marshal><rss/></marshal>
             <setBody>
-                <xpath>/rss/channel/item/title/text()</xpath>
+                <xpath resultType="java.lang.String">concat(/rss/channel/item/title, " - " , /rss/channel/item/link)</xpath>
             </setBody>
-            <to uri="log:jirabot?showHeaders=false&amp;showExchangePattern=false&amp;showBodyType=false"/>
-            <to uri="irc:JiraBot@irc.freenode.net/#jirabottest"/>
+            <to uri="seda:display" />
         </route>
-        <!-- END SNIPPET: e1 -->
+
+	<route>
+		<from uri="seda:display" />
+                <to uri="log:turmeric-bot?showHeaders=false&amp;showExchangePattern=false&amp;showBodyType=false"/>
+		<to uri="irc:turmeric-bot@irc.freenode.net?channels=#turmeric-dev" />
+	</route>
     </camelContext>
-
-
 </beans>
 
