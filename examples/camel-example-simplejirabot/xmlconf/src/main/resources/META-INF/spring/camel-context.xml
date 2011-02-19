@@ -60,10 +60,10 @@
 
         <!-- Monitor the RSS feed from the issues for new updates -->
         <route>
-            <from uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/temp/SearchRequest.xml?jqlQuery=project+%3D+TURMERIC+ORDER+BY+updated+DESC%2C+priority+DESC%2C+created+ASC&amp;tempMax=20&amp;delay=10s"/>
+            <from uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/10080/SearchRequest-10080.xml?tempMax=20&amp;delay=10s"/>
             <marshal><rss/></marshal>
             <setBody>
-                <xpath resultType="java.lang.String">concat(/rss/channel/item/title, " - " , /rss/channel/item/link)</xpath>
+                <xpath resultType="java.lang.String">concat("Updated: ", /rss/channel/item/title, " - " , /rss/channel/item/link)</xpath>
             </setBody>
             <to uri="seda:display" />
         </route>
