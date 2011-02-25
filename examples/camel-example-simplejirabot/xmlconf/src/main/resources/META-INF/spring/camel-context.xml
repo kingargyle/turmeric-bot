@@ -38,16 +38,46 @@
 							</setBody>
 						</when>
 						<when>
+							<simple>${body} == '~help Hi'</simple>
+							<setBody>
+								<constant>The command Hi, is a simple, Hello World type command. Try it and see what it does. It doesn't take any parameters</constant>
+							</setBody>
+						</when>
+
+						<when>
 							<simple>${body} == '~about'</simple>
 							<setBody>
-								<constant>Currently I just monitor the JIRA issue system for new
-									updates.'</constant>
+								<constant>Turmeric-bot. New and IMPROVED!  Monitors Hudson, Forums, JIRA and went to Weather school as well.  Oh it babbles a lot too. Type ~help for a list of commands</constant>
 							</setBody>
+						</when>
+						<when>
+							<simple>${body} == '~help Hi'</simple>
+							<setBody>
+								<constant>The about command provides basic information about the bot.</constant>
+							</setBody>
+						</when>
+
+						<when>
+							<simple>${body} contains '~weather'</simple>
+							<setHeader headerName="airport">
+								<simple>${body}</simple>
+							</setHeader>
+							<setBody>
+								<constant>&lt;weather/></constant>
+							</setBody>
+							<to uri="xslt:xsltWeather.xsl?transformerFactoryClass=net.sf.saxon.TransformerFactoryImpl&amp;uriResolver=basicResolver" />
 						</when>
 						<when>
 							<simple>${body} == '~help'</simple>
 							<setBody>
-								<constant>I understand the following commands. Hi, jira, and about. All commands are proceeded by a ~. For Example: ~jira 548</constant>
+								<constant>I understand the following commands. Hi, jira, weather and about. All commands are proceeded by a ~. For Example: ~jira 548</constant>
+							</setBody>
+						</when>
+                                       
+						<when>
+							<simple>${body} == '~help weather'</simple>
+							<setBody>
+								<constant>The weather command will report the current weather conditions based on the airport code entered.  To report for Columus, OH:  ~weather CMH</constant>
 							</setBody>
 						</when>
 						<when>
@@ -61,6 +91,13 @@
 							<to
 								uri="xslt:getJIRAIssue.xsl?transformerFactoryClass=net.sf.saxon.TransformerFactoryImpl&amp;uriResolver=basicResolver" />
 						</when>
+						<when>
+							<simple>${body} == '~help jira'</simple>
+							<setBody>
+								<constant>The jira command will retrieve the current status of a particular jira number for the turmeric project. Format of the command is: ~jira issuenumber. Replace issuenumber with the actual issue number to retrieve.</constant>
+							</setBody>
+						</when>
+
 					</choice>
 					<to uri="seda:display" />
 				</when>
@@ -70,7 +107,7 @@
 		<!-- Monitor the RSS feed from the issues for new updates -->
 		<route>
 			<from
-				uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/10080/SearchRequest-10080.xml?tempMax=20&amp;delay=10s" />
+				uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/10080/SearchRequest-10080.xml?tempMax=20&amp;delay=10s&amp;consumer.delay=60000" />
 			<marshal>
 				<rss />
 			</marshal>
@@ -83,7 +120,7 @@
 
 		<route>
 			<from
-				uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/10081/SearchRequest-10081.xml?tempMax=20&amp;delay=10s" />
+				uri="rss:https://www.ebayopensource.org/jira/sr/jira.issueviews:searchrequest-rss/10081/SearchRequest-10081.xml?tempMax=20&amp;delay=10s&amp;consumer.delay=60000" />
 			<marshal>
 				<rss />
 			</marshal>
@@ -96,7 +133,7 @@
 
 		<route>
 			<from
-				uri="rss:http://www.ebayopensource.org/hudson/view/Turmeric%20CI/rssLatest?delay=10s" />
+				uri="rss:http://www.ebayopensource.org/hudson/view/Turmeric%20CI/rssLatest?delay=10s&amp;consumer.delay=60000" />
 			<marshal>
 				<rss />
 			</marshal>
@@ -110,7 +147,7 @@
 
 		<route>
 			<from
-				uri="rss:https://www.ebayopensource.org/forum/feed.php?mode=m&amp;l=1&amp;n=5&amp;basic=1&amp;format=atom&amp;delay=10s" />
+				uri="rss:https://www.ebayopensource.org/forum/feed.php?mode=m&amp;l=1&amp;n=5&amp;basic=1&amp;format=atom&amp;delay=10s&amp;consumer.delay=60000" />
 			<marshal>
 				<rss />
 			</marshal>
