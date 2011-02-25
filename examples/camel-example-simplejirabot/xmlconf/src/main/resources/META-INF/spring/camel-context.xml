@@ -68,9 +68,26 @@
 							<to uri="xslt:xsltWeather.xsl?transformerFactoryClass=net.sf.saxon.TransformerFactoryImpl&amp;uriResolver=basicResolver" />
 						</when>
 						<when>
+							<simple>${body} contains '~time'</simple>
+							<setHeader headerName="airport">
+								<simple>${body}</simple>
+							</setHeader>
+							<setBody>
+								<constant>&lt;time/></constant>
+							</setBody>
+							<to uri="xslt:xsltTime.xsl?transformerFactoryClass=net.sf.saxon.TransformerFactoryImpl&amp;uriResolver=basicResolver" />
+						</when>
+						<when>
+							<simple>${body} == '~help time'</simple>
+							<setBody>
+								<constant>Given an airport code, provides the local time and the GMT time.  Let's see a 5th grader do that!'</constant>
+							</setBody>
+						</when>
+						
+						<when>
 							<simple>${body} == '~help'</simple>
 							<setBody>
-								<constant>I understand the following commands. Hi, jira, weather and about. All commands are proceeded by a ~. For Example: ~jira 548</constant>
+								<constant>I understand the following commands. Hi, jira, weather, time and about. All commands are proceeded by a ~. For Example: ~jira 548</constant>
 							</setBody>
 						</when>
                                        
@@ -97,7 +114,11 @@
 								<constant>The jira command will retrieve the current status of a particular jira number for the turmeric project. Format of the command is: ~jira issuenumber. Replace issuenumber with the actual issue number to retrieve.</constant>
 							</setBody>
 						</when>
-
+						<otherwise>
+							<setBody>
+								<constant>Now researching, training, and studying to understand the unknown command.  You will be assimulated.  Resistance is futile.  Your technological and biological functions will be adapted to serve as us. </constant>
+							</setBody>
+						</otherwise>
 					</choice>
 					<to uri="seda:display" />
 				</when>
